@@ -4,6 +4,8 @@ import "./globals.css";
 import { App } from "./app";
 import { AppProvider, ThemePreference } from "@/contexts/app-context";
 import { cookies } from "next/headers";
+import NextTopLoader from "nextjs-toploader";
+import { notes } from "@/lib/data";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -50,7 +52,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 			</head>
 
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}>
-				<AppProvider initialThemePreference={themePreference}>
+				<NextTopLoader />
+				<AppProvider initialThemePreference={themePreference} initialData={notes}>
 					<App>{children}</App>
 				</AppProvider>
 			</body>

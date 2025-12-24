@@ -13,18 +13,18 @@ const ThemeSwitcher = () => {
 	};
 
 	return (
-		<ButtonGroup className="border border-surface rounded-full bg-surface p-0.5" hideSeparator>
+		<ButtonGroup className="border border-surface-quaternary rounded-full bg-surface p-1 w-fit" hideSeparator>
 			{THEMES.map((theme) => (
 				<Button
 					key={theme}
 					aria-label={`${theme}-mode`}
 					size="sm"
 					className={cn(
-						"bg-surface hover:bg-surface-hover rounded-full opacity-50",
-						themePreference === theme && "opacity-100 bg-surface-hover"
+						"bg-transparent hover:bg-field-on-background-hover  rounded-full opacity-50",
+						themePreference === theme && "opacity-100 bg-field-on-background-hover"
 					)}
 					isIconOnly
-					onClick={() => handleThemePreference(theme)}
+					onPress={() => handleThemePreference(theme)}
 				>
 					{THEME_ICONS[theme]}
 				</Button>
