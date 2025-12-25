@@ -6,6 +6,7 @@ import { AppProvider, ThemePreference } from "@/contexts/app-context";
 import { cookies } from "next/headers";
 import NextTopLoader from "nextjs-toploader";
 import { notes } from "@/lib/data";
+import { AuthProvider } from "@/contexts/auth-provider";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -27,24 +28,23 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 	const themePreference = (cookieStore.get("themePreference")?.value ?? "system") as ThemePreference;
 
 	return (
-		<html lang="en" data-theme-preference={themePreference}>
+		<html lang="en" data-theme="light" data-theme-preference={themePreference}>
 			<head>
 				<script
 					dangerouslySetInnerHTML={{
 						__html: `
 							(function () {
-								const pref = document.documentElement.dataset.themePreference;
+								const root = document.documentElement;
+								const pref = root.dataset.themePreference;
 
-								let theme;
-								if (pref === "light" || pref === "dark") {
-									theme = pref;
-								} else {
+								let theme = pref;
+								if (pref === "system") {
 									theme = window.matchMedia("(prefers-color-scheme: dark)").matches
 										? "dark"
 										: "light";
 								}
 
-								document.documentElement.setAttribute("data-theme", theme);
+								root.dataset.theme = theme;
 							})();
 						`,
 					}}
@@ -53,9 +53,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}>
 				<NextTopLoader />
-				<AppProvider initialThemePreference={themePreference} initialData={notes}>
-					<App>{children}</App>
-				</AppProvider>
+				<AuthProvider>
+					<AppProvider initialThemePreference={themePreference} initialData={notes}>
+						<App>{children}</App>
+					</AppProvider>
+				</AuthProvider>
 			</body>
 		</html>
 	);

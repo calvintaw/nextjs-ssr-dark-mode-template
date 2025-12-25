@@ -2,7 +2,8 @@
 
 import { setThemePreferenceCookie } from "@/lib/actions";
 import useMediaQuery from "beautiful-react-hooks/useMediaQuery";
-import { createContext, useContext, ReactNode, useState } from "react";
+import { User } from "better-auth";
+import { createContext, useContext, ReactNode, useState, useEffect } from "react";
 
 export const THEMES = ["light", "dark", "system"] as const;
 export type ThemePreference = (typeof THEMES)[number];
@@ -26,9 +27,8 @@ type AppContextValue = {
 	themePreference: ThemePreference;
 	handleThemePreference: (themePreference: ThemePreference) => void;
 	notes: Note[];
+	handleAddNote: (note: Note) => void;
 };
-
-
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
 
@@ -44,22 +44,37 @@ export function AppProvider({
 	const [themePreference, setThemePreference] = useState<ThemePreference>(initialThemePreference);
 	const systemPrefersDark = useMediaQuery("(prefers-color-scheme: dark)");
 	const theme: Theme = themePreference === "system" ? (systemPrefersDark ? "dark" : "light") : themePreference;
+	const [notes, setNotes] = useState<Note[]>(initialData);
+	const [user, setUser] = useState<User | null>(null);
 
 	const handleThemePreference = async (themePreference: ThemePreference) => {
 		setThemePreference(themePreference);
-		const theme: Theme = themePreference === "system" ? (systemPrefersDark ? "dark" : "light") : themePreference;
-
-		document.documentElement.setAttribute("data-theme", theme);
 		await setThemePreferenceCookie(themePreference);
 	};
 
-	const [notes, setNotes] = useState<Note[]>(initialData);
+	useEffect(() => {
+		const theme: Theme = themePreference === "system" ? (systemPrefersDark ? "dark" : "light") : themePreference;
+		document.documentElement.setAttribute("data-theme", theme);
+	}, [themePreference, systemPrefersDark]);
+
+	const handleAddNote = (note: Note) => {
+		setNotes((prev) => [...prev, note]);
+	};
+
+	const handleDeleteNote = (id: string) => {
+		setNotes((prev) => prev.filter((pn) => pn.id !== id));
+	};
+
+	const handleUpdateNote = (note: Note) => {
+		setNotes((prev) => prev.map((pn) => (pn.id === note.id ? note : pn)));
+	};
 
 	const value: AppContextValue = {
 		theme,
 		themePreference,
 		handleThemePreference,
 		notes,
+		handleAddNote
 	};
 
 	return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
